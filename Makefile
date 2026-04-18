@@ -1,4 +1,4 @@
 test:
-	dotnet test ./MyTests/MyTests.csproj
+	dotnet test ./Tests/Tests.csproj
 run:
 	dotnet run --project ./src/sync.csproj

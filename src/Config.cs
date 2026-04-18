@@ -2,7 +2,8 @@ namespace sync;
 
 public class Config
 {
-    public const string DataFolder = "./Data/";
+    private const string DataFolder = "./data";
+    private const string LogFolder = "./logs";
     public string SourceFolder {
         get => Path.Combine(Config.DataFolder, field); 
         set;
@@ -12,8 +13,8 @@ public class Config
         set;
     } = "target";
     public string LogFilePath {
-        get => Path.Combine(Config.DataFolder, field); 
+        get => Path.Combine(Config.LogFolder, string.Concat(field, ".json")); 
         set;
-    }  = "./logs";
+    }  = "logs";
     public int TimeIntervalInSeconds {get; set;} = 1;
 }
