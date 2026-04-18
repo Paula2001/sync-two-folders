@@ -3,7 +3,7 @@ using sync.Enums;
 using System.Text;
 
 namespace sync.Commands;
-public class CommandsHandler(Config conf) {
+public class CommandsHandler(Config conf, CancellationTokenSource cts) {
     public bool Stop {get; set;} = false;
     public static void PrintInit()
     {
@@ -29,6 +29,7 @@ public class CommandsHandler(Config conf) {
         PrintInit();
         while (true)
             {
+                cts.Token.ThrowIfCancellationRequested();
                 string? consoleLine = Console.ReadLine();
                 if (consoleLine != null)
                 {
@@ -36,7 +37,7 @@ public class CommandsHandler(Config conf) {
                     
                     if (cmd == CommandsEnum.EXIT)
                     {
-                        Stop = true;
+                        cts.Cancel();
                         Console.WriteLine("Exiting application... bye bye!");
                         break;
                     }               

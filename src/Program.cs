@@ -1,5 +1,6 @@
 ﻿using ColorLoggerLibrary;
 using Microsoft.Extensions.DependencyInjection;
+using Spectre.Console;
 using sync.Commands;
 using sync.DataManagement;
 
@@ -11,6 +12,7 @@ class Program
     {
         ServiceCollection services = new();
 
+        services.AddSingleton<CancellationTokenSource>();
         services.AddSingleton<CommandsHandler>();
         services.AddSingleton<Config>();
         services.AddSingleton<FolderSync>();
@@ -26,3 +28,5 @@ class Program
     }
 
 }
+
+
