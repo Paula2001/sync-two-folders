@@ -1,12 +1,10 @@
-using sync.Commands;
-
 namespace sync.DataManagement;
 
-public class FolderSync(CommandsHandler commands, Config config, CancellationTokenSource cts)
+public class FolderSync(Config config, CancellationTokenSource cts)
 {
     public Thread Read()
     {
-        string sourceFolder = config.SourceFolder;
+        string sourceFolder = string.Concat(Config.DataFolder, config.SourceFolder);
         string targetFolder = config.TargetFolder;
         Thread thread = new(() =>
         {

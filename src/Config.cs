@@ -2,6 +2,7 @@ namespace sync;
 
 public class Config
 {
+    public const string DataFolder = "./Data/";
     public string SourceFolder {get; set;} = "source";
     public string TargetFolder {get; set;} = "target";
     public string LogFilePath {get; set;} = "./logs";
