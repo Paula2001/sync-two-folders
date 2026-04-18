@@ -4,11 +4,10 @@ public class FolderSync(Config config, CancellationTokenSource cts)
 {
     public Task Read()
     {
-        // TODO: I want to add a decrator arround this
-        string sourceFolder = string.Concat(Config.DataFolder, config.SourceFolder);
-        string targetFolder = string.Concat(Config.DataFolder, config.TargetFolder);
-        string logsFile = string.Concat(Config.DataFolder, config.LogFilePath);
-        return Task.Run(() =>
+        string sourceFolder = config.SourceFolder;
+        string targetFolder = config.TargetFolder;
+        string logsFile = config.LogFilePath;
+        return Task.Run(async () =>
         {
             while (true)
             {
@@ -32,7 +31,7 @@ public class FolderSync(Config config, CancellationTokenSource cts)
                     Console.WriteLine($"Error: {ex.Message}");
                     cts.Cancel();
                 }
-                Thread.Sleep(config.TimeIntervalInSeconds);
+                await Task.Delay(config.TimeIntervalInSeconds, cts.Token);
             }
         });
     }
