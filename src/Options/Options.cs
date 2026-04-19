@@ -1,4 +1,4 @@
-using sync.Enums;
+using sync.Options.Enums;
 using Spectre.Console;
 using System.Text.Json;
 
@@ -50,7 +50,7 @@ public class OptionsHandler(
                         if (option == OptionsEnum.EXIT)
                         {
                             cts.Cancel();
-                            Console.WriteLine("Exiting application... bye bye!");
+                            Console.WriteLine("Exiting application...!");
                             break;
                         }               
                         

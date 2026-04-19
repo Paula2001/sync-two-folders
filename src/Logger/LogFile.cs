@@ -1,3 +1,5 @@
+namespace sync.Logger;
+
 public class LogFile : Dictionary<string, Timestamp>
 {
 }

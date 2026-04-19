@@ -9,5 +9,6 @@ public class SetSourceFolderOption(Config config, IAnsiConsole console) : Option
     {
         var name = ConsoleInstance.Ask<string>("Set the [green]Source[/] folder.");
         config.SourceFolder = name;
+        Directory.CreateDirectory(config.SourceFolder);
     }
 }

@@ -1,4 +1,4 @@
-namespace sync.Enums;
+namespace sync.Options.Enums;
 
 enum OptionsEnum
 {

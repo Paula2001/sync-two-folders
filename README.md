@@ -1,170 +1,304 @@
+# Note: This README was AI-assisted and is the only part of this project where I used AI to summarize my work.
+
 # sync
 
-Single-direction folder sync CLI built with .NET. The app runs two loops in parallel:
-an interactive options menu and a polling sync worker that copies files from source
-to replica and writes JSON logs.
+Technical interview project: a .NET console application that keeps two folders synchronized and provides an interactive menu to configure behavior at runtime.
 
-This README is contributor-focused and documents current behavior only.
+This README explains what I built, how I designed it, why I made specific tradeoffs, and how the pieces fit together.
 
-## Prerequisites
+## What I Built
 
-- .NET SDK 10.0 (project targets `net10.0`)
-- `make`
+I implemented a file synchronization CLI with these core capabilities:
 
-## Quick Start
+- Runtime configuration through an interactive Spectre.Console menu
+- Continuous polling-based synchronization from source folder to target folder
+- Change detection using file hashes
+- Support for write, update, and delete propagation into the target folder
+- JSON log persistence for every operation
+- Automated tests for key interaction flow
 
-From the repository root:
+## Problem Framing and Approach
+
+The goal was to build a practical sync tool with clear architecture, not just a single script.
+
+I split responsibilities into independent layers:
+
+- Application orchestration
+- Option handling (interactive commands)
+- Sync engine (file replication logic)
+- Logging pipeline (async queue and persistence)
+- Configuration state (shared runtime settings)
+
+This allowed me to keep each concern small and testable while still shipping an end-to-end workflow.
+
+## Architecture Overview
+
+High-level execution flow:
+
+1. App starts in Program and builds a DI container.
+2. Application launches two concurrent loops:
+	- menu loop for user options
+	- sync loop for file replication
+3. Both loops share one cancellation token so the app can shut down cleanly.
+
+Main files:
+
+- src/Program.cs
+- src/Application.cs
+- src/Bootstrap.cs
+
+## Design Patterns Used
+
+### 1. Command-style option pattern
+
+Each menu action is implemented as its own class inheriting OptionBase:
+
+- SetSourceFolderOption
+- SetTargetFolderOption
+- SetIntervalOption
+- SetLogPathOption
+- LoadConfigOption
+- ReadLogsOption
+
+Why this pattern:
+
+- Keeps each command isolated and easy to reason about
+- Makes adding a new option straightforward
+- Avoids a large switch block with mixed logic
+
+Related files:
+
+- src/Options/OptionBase.cs
+- src/Options/Options.cs
+- src/Options/SetSourceFolderOption.cs
+- src/Options/SetTargetFolderOption.cs
+- src/Options/SetIntervalOption.cs
+- src/Options/SetLogPathOption.cs
+- src/Options/LoadConfigOption.cs
+- src/Options/ReadLogsOption.cs
+- src/Options/Enums/OptionsEnum.cs
+
+### 2. Dependency Injection with reflective registration
+
+In Bootstrap, all non-abstract subclasses of OptionBase are discovered via reflection and registered as singletons.
+
+Why this pattern:
+
+- Reduces repetitive DI setup when options grow
+- Centralizes service registration
+- Improves maintainability for future extension
+
+Related file:
+
+- src/Bootstrap.cs
+
+### 3. Producer/consumer logging queue
+
+FileLogger uses a Channel to queue log entries and a dedicated background consumer task to write JSON.
+
+Why this pattern:
+
+- Keeps sync operations lightweight by decoupling write latency
+- Supports multiple writers with a single reader
+- Prevents contention around direct file writes inside sync loop
+
+Related file:
+
+- src/Logger/FileLogger.cs
+
+### 4. Polling sync loop with helper methods
+
+FolderSync separates responsibilities into focused methods:
+
+- SyncDeletedFiles
+- SyncSourceFiles
+- UpdateIfChanged
+- WriteFile
+- DeleteFile
+
+Why this pattern:
+
+- Cleaner than one long loop
+- Easier to test and modify each behavior
+- Improves readability in interview/code review discussions
+
+Related file:
+
+- src/FolderManagement/FolderSync.cs
+
+## Synchronization Logic (Current Behavior)
+
+Every cycle:
+
+1. Compare source and target names to identify target files missing in source and delete them.
+2. Iterate source files.
+3. If target file exists, compare MD5 hashes.
+4. Copy if changed and log UPDATE.
+5. Copy new file and log WRITE.
+6. Wait configured interval and repeat.
+
+Hash comparison is implemented in:
+
+- src/Helpers/Hash.cs
+
+Operation enum:
+
+- src/FolderManagement/FileOperation.cs
+
+## Runtime Configuration Model
+
+Config stores mutable runtime settings:
+
+- SourceFolder
+- TargetFolder
+- LogFilePath
+- TimeIntervalInSeconds
+
+Default values:
+
+- source: ./data/source
+- target: ./data/replica
+- log path: ./logs/logs.json
+- interval: 1 second
+
+The source and target option handlers also create directories immediately after updates.
+
+Related file:
+
+- src/Config.cs
+
+## Logging Format
+
+Logs are persisted as JSON dictionary entries keyed by UTC timestamp in round-trip format.
+
+Each entry includes:
+
+- FileName
+- Operation
+
+Related files:
+
+- src/Logger/Log.cs
+- src/Logger/LogFile.cs
+- src/Logger/FileLogger.cs
+
+## Technologies Used
+
+- C# / .NET 10 (`net10.0`)
+- Microsoft Dependency Injection (`Microsoft.Extensions.DependencyInjection`)
+- Spectre.Console (interactive CLI prompts and output)
+- System.Threading.Channels (asynchronous producer/consumer logging queue)
+- System.Text.Json (JSON serialization for log persistence)
+- MD5 hashing via `System.Security.Cryptography` (file change detection)
+- xUnit (test framework)
+- Spectre.Console.Testing (console interaction testing)
+- Coverlet Collector (test coverage tooling)
+- Make (simple run/test command orchestration)
+
+## How to Run
+
+Prerequisites:
+
+- .NET SDK 10
+- make
+
+Commands:
 
 ```bash
 make run
-```
-
-This starts the app using `dotnet run --project ./src/sync.csproj`.
-
-Run tests:
-
-```bash
 make test
 ```
 
-This executes `dotnet test ./Tests/Tests.csproj`.
+### make run Screenshots
 
-## Makefile Reference
+Startup command:
 
-Current targets:
+![make run command](docs/screenshots/make-run-1.svg)
 
-- `run`: starts the interactive application from `./src/sync.csproj`
-- `test`: runs the test project at `./Tests/Tests.csproj`
+Interactive options menu:
 
-There are no `build`, `clean`, or default/help targets yet.
+![make run options menu](docs/screenshots/make-run-2.svg)
 
-## Runtime Model
+Running state (waiting for user selection):
 
-The entrypoint creates a DI container and starts `Application.Run()`.
+![make run running state](docs/screenshots/make-run-3.svg)
 
-- `src/Program.cs`: creates `CancellationTokenSource`, builds services via `Bootstrap`, runs app
-- `src/Application.cs`: runs options menu and folder sync concurrently via `Task.WhenAll`
+### All Scenarios Screenshots
 
-Concurrency shape:
+Source option:
 
-1. Options loop waits for interactive commands.
-2. Sync loop scans source folder every configured interval.
-3. Either loop can cancel the shared token to stop the app.
+![scenario source](docs/screenshots/scenario-source.svg)
 
-## Dependency Injection and Registration Pattern
+Target option:
 
-`src/Bootstrap.cs` builds the service provider and registers core services as singletons.
+![scenario target](docs/screenshots/scenario-target.svg)
 
-Important pattern:
+Interval option:
 
-- All non-abstract subclasses of `OptionBase` are discovered with reflection and auto-registered.
-- `OptionsHandler` receives concrete option classes via constructor injection.
+![scenario interval](docs/screenshots/scenario-interval.svg)
 
-This is the extension point for adding new menu features.
+Log option:
 
-## Options Pattern
+![scenario log](docs/screenshots/scenario-log.svg)
 
-The options system is command-like:
+Config option:
 
-- `src/Options/OptionBase.cs`: abstract base class with `Execute()` and shared `RunOption()` wrapper
-- `src/Options/Options.cs`: menu selection and mapping from `OptionsEnum` to option instances
+![scenario config](docs/screenshots/scenario-config.svg)
 
-Current option classes:
+Read Logs option:
 
-- `SetSourceFolderOption`
-- `SetTargetFolderOption`
-- `SetIntervalOption`
-- `SetLogPathOption`
-- `LoadConfigOption`
-- `ReadLogsOption`
+![scenario read logs](docs/screenshots/scenario-read-logs.svg)
 
-### How Menu Selection Works
+Exit option:
 
-`OptionsHandler` prompts with Spectre Console labels like "Read Logs", converts selection
-to snake_case, and parses it into `OptionsEnum`. `EXIT` triggers cancellation.
+![scenario exit](docs/screenshots/scenario-exit.svg)
 
-## Configuration Pattern
+Sync WRITE scenario:
 
-`src/Config.cs` holds mutable runtime settings shared by both loops.
+![scenario sync write](docs/screenshots/scenario-sync-write.svg)
 
-Defaults:
+Sync UPDATE scenario:
 
-- `SourceFolder`: `./data/source`
-- `TargetFolder`: `./data/replica`
-- `LogFilePath`: `./logs/logs.json`
-- `TimeIntervalInSeconds`: `1`
+![scenario sync update](docs/screenshots/scenario-sync-update.svg)
 
-Path properties compose `./data` and `./logs` prefixes in the getters.
+Sync DELETE scenario:
 
-## Sync Algorithm
+![scenario sync delete](docs/screenshots/scenario-sync-delete.svg)
 
-`src/DataManagement/FolderSync.cs` implements polling-based, one-way replication.
+Makefile target mapping:
 
-Per cycle:
+- run -> dotnet run --project ./src/sync.csproj
+- test -> dotnet test ./Tests/Tests.csproj
 
-1. Enumerate files in source folder.
-2. For each file, resolve matching path in replica.
-3. If target exists, compare MD5 hashes (`src/Helpers/Hash.cs`).
-4. Copy and log `UPDATE` when hashes differ.
-5. Copy and log `WRITE` when file is missing in target.
-6. Wait configured interval and repeat.
+Related file:
 
-Error behavior:
+- Makefile
 
-- Exceptions are printed to console.
-- Cancellation token is canceled and loop exits.
+## Testing Strategy
 
-## Logging Format and Flow
+Current tests include:
 
-Logging is file-based JSON in `src/Logger/FileLogger.cs`.
+- Integration-style console test that validates config output rendering through Spectre test console
+- Minimal baseline unit test scaffold
 
-- Log records are modeled in `src/Logger/Log.cs`.
-- Stored structure is `LogFile` dictionary (`src/Logger/LogFile.cs`) keyed by timestamp string.
-- `ReadLogsAsync()` creates the log file if missing and returns raw JSON content.
+Related files:
 
-Operation values currently used by sync logic:
-
-- `WRITE`
-- `UPDATE`
-
-`DELETE` exists in `src/DataManagement/FileOperation.cs` but is not used by the current sync loop.
+- Tests/LoadConfigOptionOutputTests.cs
+- Tests/ConsoleTestingFactory.cs
+- Tests/Helpers/InputHelpers.cs
 
 ## Project Structure
 
-Key directories:
+- src: application code
+- src/Options: interactive command system
+- src/FolderManagement: synchronization logic
+- src/Logger: logging models and writer
+- src/Helpers: hash utility
+- Tests: xUnit test project and test helpers
 
-- `src/`: application code
-- `src/Options/`: interactive option handlers and menu orchestration
-- `src/DataManagement/`: sync loop and operation enum
-- `src/Logger/`: log models and persistence
-- `Tests/`: xUnit tests and testing helpers
+## Contact
 
-## Testing
+- Email: polagorge@gmail.com
+- LinkedIn: https://www.linkedin.com/in/paula-gawargious-210348164/
 
-Test project:
-
-- `Tests/Tests.csproj`
-
-Current examples:
-
-- `Tests/LoadConfigOptionOutputTests.cs`: integration-style console output assertion
-- `Tests/UnitTest1.cs`: placeholder unit test
-
-## Extending the App
-
-To add a new option:
-
-1. Create a new class in `src/Options/` that inherits `OptionBase` and implements `Execute()`.
-2. Add a corresponding enum value in `src/Enums/OptionsEnum.cs`.
-3. Add the menu label in `OptionsHandler.ReceiveOption()`.
-4. Inject the new option class into `OptionsHandler` constructor and add it to `_options` mapping.
-
-Because `Bootstrap` auto-registers `OptionBase` subclasses, no manual DI registration is needed for the option class itself.
-
-## Known Limitations (Current Behavior)
-
-- Sync is one-way: source -> replica only.
-- Source deletions are not propagated to replica.
-- Polling model (interval-based) is used, not file-system watching.
-- Shared mutable config is accessed concurrently by options and sync loops.
-- `FileLogger.Log` is `async void`, which is harder to observe and test.
+---

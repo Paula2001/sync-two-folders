@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="380" viewBox="0 0 1400 380">
+  <rect width="1400" height="380" fill="#0b1220"/>
+  <rect x="20" y="20" width="1360" height="340" rx="10" fill="#111827" stroke="#334155"/>
+  <text x="40" y="60" fill="#93c5fd" font-size="22" font-family="Menlo, monospace">Scenario: Target option</text>
+  <text x="40" y="105" fill="#e5e7eb" font-size="20" font-family="Menlo, monospace">Select Option :</text>
+  <text x="60" y="145" fill="#ffffff" font-size="20" font-family="Menlo, monospace">&gt; Target</text>
+  <text x="40" y="200" fill="#cbd5e1" font-size="20" font-family="Menlo, monospace">Set the Target folder.</text>
+  <text x="40" y="235" fill="#86efac" font-size="20" font-family="Menlo, monospace">Input: test-replica</text>
+  <text x="40" y="270" fill="#cbd5e1" font-size="18" font-family="Menlo, monospace">Result: Config.TargetFolder updated and directory created.</text>
+</svg>

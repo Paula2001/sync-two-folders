@@ -8,5 +8,6 @@ public class SetTargetFolderOption(Config config, IAnsiConsole console) : Option
     {
         var name = ConsoleInstance.Ask<string>("Set the [green]Target[/] folder.");
         config.TargetFolder = name;
+        Directory.CreateDirectory(config.TargetFolder);
     }
 }

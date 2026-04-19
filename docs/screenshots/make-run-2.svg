@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="480" viewBox="0 0 1400 480" role="img" aria-label="make run screenshot 2">
+  <rect width="1400" height="480" fill="#0f172a"/>
+  <rect x="20" y="20" width="1360" height="440" rx="10" fill="#111827" stroke="#334155"/>
+  <circle cx="48" cy="44" r="8" fill="#ef4444"/>
+  <circle cx="74" cy="44" r="8" fill="#f59e0b"/>
+  <circle cx="100" cy="44" r="8" fill="#22c55e"/>
+  <text x="130" y="49" fill="#94a3b8" font-family="Menlo, Monaco, Consolas, monospace" font-size="15">Terminal - sync options menu</text>
+  <text x="40" y="92" fill="#93c5fd" font-family="Menlo, Monaco, Consolas, monospace" font-size="20">Select Option :</text>
+  <rect x="38" y="116" width="220" height="36" rx="5" fill="#1d4ed8"/>
+  <text x="52" y="140" fill="#ffffff" font-family="Menlo, Monaco, Consolas, monospace" font-size="20">&gt; Source</text>
+  <text x="52" y="178" fill="#e5e7eb" font-family="Menlo, Monaco, Consolas, monospace" font-size="20">  Target</text>
+  <text x="52" y="216" fill="#e5e7eb" font-family="Menlo, Monaco, Consolas, monospace" font-size="20">  Interval</text>
+  <text x="52" y="254" fill="#e5e7eb" font-family="Menlo, Monaco, Consolas, monospace" font-size="20">  Log</text>
+  <text x="52" y="292" fill="#e5e7eb" font-family="Menlo, Monaco, Consolas, monospace" font-size="20">  Config</text>
+  <text x="52" y="330" fill="#e5e7eb" font-family="Menlo, Monaco, Consolas, monospace" font-size="20">  Read Logs</text>
+  <text x="52" y="368" fill="#e5e7eb" font-family="Menlo, Monaco, Consolas, monospace" font-size="20">  Exit</text>
+</svg>
