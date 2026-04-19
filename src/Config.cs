@@ -11,7 +11,7 @@ public class Config
     public string TargetFolder {
         get => Path.Combine(Config.DataFolder, field); 
         set;
-    } = "target";
+    } = "replica";
     public string LogFilePath {
         get => Path.Combine(Config.LogFolder, string.Concat(field, ".json")); 
         set;

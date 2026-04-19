@@ -1,30 +1,61 @@
+using sync.Helpers;
+using sync.Logger;
+
 namespace sync.DataManagement;
 
-public class FolderSync(Config config, CancellationTokenSource cts)
+public class FolderSync(Config config,FileLogger log ,CancellationTokenSource cts)
 {
-    public async Task ReadAsync()
+public async Task ReadAsync()
+{
+    while (!cts.Token.IsCancellationRequested)
     {
-        while (true)
+        try
         {
-            cts.Token.ThrowIfCancellationRequested();
+            var files = Directory.GetFiles(config.SourceFolder);
 
-            try
+            foreach (var file in files)
             {
-                var files = Directory.GetFiles(config.SourceFolder);
+                cts.Token.ThrowIfCancellationRequested();
 
-                foreach (var file in files)
+                var fileName = Path.GetFileName(file);
+                var targetPath = Path.Combine(config.TargetFolder, fileName);
+
+                if (File.Exists(targetPath))
                 {
-                    // TODO logic
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-                cts.Cancel();
-                break;
-            }
+                    if (!Hash.CompareHash(file, targetPath))
+                    {
+                        File.Copy(file, targetPath, overwrite: true);
+                        log.Log(new Log
+                        {
+                            FileName = fileName,
+                            FileOperation = FileOperation.UPDATE.ToString()
+                        });
+                    }
 
-            await Task.Delay(TimeSpan.FromSeconds(config.TimeIntervalInSeconds)); // add a cts.token
+                    continue;
+                }
+
+                File.Copy(file, targetPath, overwrite: false);
+
+                log.Log(new Log
+                {
+                    FileName = fileName,
+                    FileOperation = FileOperation.WRITE.ToString()
+                });
+            }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            cts.Cancel();
+            break;
+        }
+
+        await Task.Delay(
+            TimeSpan.FromSeconds(config.TimeIntervalInSeconds),
+            cts.Token
+        );
     }
+}
+  
 }

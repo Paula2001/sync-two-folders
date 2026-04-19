@@ -2,6 +2,7 @@ using ColorLoggerLibrary;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 using sync.DataManagement;
+using sync.Logger;
 using sync.Options;
 
 namespace sync;
@@ -26,9 +27,9 @@ public static class Bootstrap
         services.AddSingleton(cts);
         services.AddSingleton<OptionsHandler>();
         services.AddSingleton<Config>();
+        services.AddSingleton<FileLogger>();
         services.AddSingleton(AnsiConsole.Console);
         services.AddSingleton<FolderSync>();
-        services.AddSingleton<LogsManagement>();
         services.AddSingleton<ColorLogger>();
         services.AddSingleton<Application>();
 
