@@ -1,7 +1,7 @@
 using ColorLoggerLibrary;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
-using sync.DataManagement;
+using sync.FolderManagement;
 using sync.Logger;
 using sync.Options;
 

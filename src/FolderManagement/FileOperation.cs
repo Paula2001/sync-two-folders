@@ -1,5 +1,5 @@
-namespace sync.DataManagement;
-// creation/copying/removal
+namespace sync.FolderManagement;
+
 public enum FileOperation
 {
     UPDATE,
