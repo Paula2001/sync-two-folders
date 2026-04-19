@@ -2,11 +2,11 @@ using Spectre.Console;
 
 namespace sync.Options;
 
-public class SetTargetFolderOption(Config config, IAnsiConsole console) : OptionBase
+public class SetTargetFolderOption(Config config, IAnsiConsole console) : OptionBase(console)
 {
     public override void Execute()
     {
-        var name = console.Ask<string>("Set the [green]Target[/] folder.");
+        var name = ConsoleInstance.Ask<string>("Set the [green]Target[/] folder.");
         config.TargetFolder = name;
     }
 }

@@ -1,13 +1,13 @@
-using sync.FolderManagement;
+using Spectre.Console;
 using sync.Logger;
 
 namespace sync.Options;
 
-public class ReadLogsOption(FileLogger fileLogger) : OptionBase
+public class ReadLogsOption(FileLogger fileLogger, IAnsiConsole console) : OptionBase(console)
 {
     public override async void Execute()
     {
         var data = await fileLogger.ReadLogsAsync();
-        Console.WriteLine(data);
+        ConsoleInstance.MarkupLine(data);
     }
 }
