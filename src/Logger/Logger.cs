@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace sync.src.Logger;
+namespace sync.Logger;
 
 public class Logger(Config config)
 {

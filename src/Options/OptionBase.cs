@@ -1,15 +1,15 @@
 using Spectre.Console;
 
-namespace sync.src.Commands;
+namespace sync.Options;
 
-public abstract class CommandBase
+public abstract class OptionBase
 {
     public abstract void Execute();
-    public void RunCommand()
+    public void RunOption()
     {
         Execute();
 
-        AnsiConsole.MarkupLine("Press [green]Q[/] to return to menu");
+        AnsiConsole.MarkupLine("Press [green]Q[/] to return to options");
         while (true)
         {
             var key = Console.ReadKey(true);

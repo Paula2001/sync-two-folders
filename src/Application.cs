@@ -1,15 +1,15 @@
-using sync.src.Commands;
+using sync.Options;
 using sync.DataManagement;
 
 namespace sync;
 
-public sealed class Application(CommandsHandler commandsHandler, FolderSync folderSync)
+public sealed class Application(OptionsHandler optionsHandler, FolderSync folderSync)
 {
     public async Task Run()
     {
         await Task.WhenAll(
-            Task.Run(() => commandsHandler.RecieveCommand()),
-            folderSync.Read()
+            Task.Run(() => optionsHandler.ReceiveOption()),
+            Task.Run(() => folderSync.ReadAsync())
         );
     }
 }

@@ -1,6 +1,6 @@
 namespace sync.Enums;
 
-enum CommandsEnum
+enum OptionsEnum
 {
     SOURCE = 1,
     TARGET = 2,
