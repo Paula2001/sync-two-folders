@@ -209,6 +209,31 @@ make run
 make test
 ```
 
+## Run With Docker
+
+Prerequisites:
+
+- Docker Desktop (or another Docker daemon) running
+
+Build image:
+
+```bash
+docker build -t sync-app .
+```
+
+Run container (interactive, with data and logs persisted to host):
+
+```bash
+docker run --rm -it -v "$(pwd)/data:/app/data" -v "$(pwd)/logs:/app/logs" sync-app
+```
+
+Equivalent Makefile targets:
+
+```bash
+make docker-build
+make docker-run
+```
+
 ### make run Screenshots
 
 Startup command:
